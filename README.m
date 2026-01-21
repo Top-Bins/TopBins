@@ -21,30 +21,19 @@ The "scoring gap" often ignores the contributions of world-class defensive midfi
 
 ## 📅 Milestones
 
-### January: Foundation
-* Set up the project repository and architecture.
-* Evaluate and integrate a real-time football data source.
+## Milestones for January
+  Set up the project repository
+  Find a realtime datasource
+## Milestones for February
+  Finalize the scoring math
+  Integrate datasource into database
+  Develop backend logic for player scoring
+## Milestones for March
+  Start work on front end
+  Build out API’s to connect front an back
+## Milestones for April
+  Finalize the frontend
+  Launch the League Management system. Implement authentication, league creation, and live point calculation during actual match days.
+  Bug fixing, performance optimization, and final documentation. 
+  
 
-### February: Development & Launch
-* **Scoring Math:** Finalize mathematical weights for player actions.
-* **Squad Builder:** Develop the frontend interface for team selection.
-* **League System:** Implement authentication, league creation, and live point calculation.
-* **Finalization:** Bug fixing, performance optimization, and documentation.
-
-## 👥 The Team
-* **Henry Babcock** (babcoh2@rpi.edu) – 4 Credits
-* **Connor Levy** (levyc2@rpi.edu) – 4 Credits
-
----
-
-## 🛠 Setup & Installation
-
-### Frontend
-1. Navigate to the `/frontend` directory.
-2. Install dependencies: `npm install`
-3. Start the dev server: `npm run dev`
-
-### Backend
-1. Navigate to the `/backend` directory.
-2. Install dependencies: `pip install -r requirements.txt`
-3. Start the API: `uvicorn main:app --reload`
