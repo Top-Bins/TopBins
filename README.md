@@ -34,6 +34,38 @@ The "scoring gap" often ignores the contributions of world-class defensive midfi
 ## Milestones for April
   Finalize the frontend
   Launch the League Management system. Implement authentication, league creation, and live point calculation during actual match days.
-  Bug fixing, performance optimization, and final documentation. 
-  
+  Bug fixing, performance optimization, and final documentation.
 
+---
+
+## 🏃‍♂️ How to Run
+
+### Backend
+
+1. Navigate to the backend directory:
+   ```bash
+   cd backend
+   ```
+
+2. Create a virtual environment and activate it:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. Set up environment variables:
+   - Copy `.env.example` to `.env`
+   - Fill in your Supabase and Sportsmonk credentials
+
+5. Run the server:
+   ```bash
+   uvicorn main:app --reload
+   ```
+
+   The API will be available at `http://localhost:8000`.
+   API Documentation: `http://localhost:8000/docs`.
