@@ -1,5 +1,5 @@
-import LoginPage from "./login/page"; // or wherever your login component is
+import HomePage from "./homePage";
 
 export default function Home() {
-  return <LoginPage />;
+  return <HomePage />;
 }
