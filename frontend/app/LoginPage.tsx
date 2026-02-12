@@ -2,6 +2,7 @@
 
 
 import React, { useMemo, useState } from "react";
+import Link from "next/link";
 
 type Props = {
   onLogin?: (email: string, password: string) => Promise<void> | void;
@@ -185,13 +186,12 @@ export default function LoginPage({ onLogin }: Props) {
 
                 <p className="pt-2 text-center text-sm text-slate-300">
                   New here?{" "}
-                  <button
-                    type="button"
+                  <Link
+                    href="/signup"
                     className="text-emerald-300 hover:text-emerald-200"
-                    onClick={() => alert("Route to /signup")}
                   >
                     Create an account
-                  </button>
+                  </Link>
                 </p>
               </form>
             </div>
