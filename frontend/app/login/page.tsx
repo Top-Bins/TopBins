@@ -1,14 +1,19 @@
 "use client";
 
-
 import React, { useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 
 type Props = {
+  // Optional override if you want to handle login yourself somewhere else.
   onLogin?: (email: string, password: string) => Promise<void> | void;
 };
 
 export default function LoginPage({ onLogin }: Props) {
+  const router = useRouter();
+  const supabase = createClient();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
@@ -25,16 +30,57 @@ export default function LoginPage({ onLogin }: Props) {
     e.preventDefault();
     setError(null);
 
-    if (!email.trim().includes("@")) return setError("Enter a valid email.");
+    const cleanEmail = email.trim();
+
+    if (!cleanEmail.includes("@")) return setError("Enter a valid email.");
     if (password.length < 6) return setError("Password must be at least 6 characters.");
 
     try {
       setLoading(true);
-      await onLogin?.(email.trim(), password);
-      // If you’re not passing onLogin yet, this is where you’d call Supabase.
+
+      // If parent passes onLogin, use it. Otherwise, Supabase login:
+      if (onLogin) {
+        await onLogin(cleanEmail, password);
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({
+          email: cleanEmail,
+          password,
+        });
+
+        if (error) throw error;
+      }
+
+      // Success — bounce to home (or /dashboard)
+      router.replace("/");
+      router.refresh();
     } catch (err: any) {
       setError(err?.message ?? "Login failed. Try again.");
     } finally {
+      setLoading(false);
+    }
+  }
+
+  async function loginWithOAuth(provider: "google" | "github") {
+    setError(null);
+
+    try {
+      setLoading(true);
+
+      const redirectTo =
+        typeof window !== "undefined"
+          ? `${window.location.origin}/auth/callback`
+          : undefined;
+
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: redirectTo ? { redirectTo } : undefined,
+      });
+
+      if (error) throw error;
+
+      // NOTE: OAuth will redirect away, so code after this usually won't run.
+    } catch (err: any) {
+      setError(err?.message ?? `OAuth login failed (${provider}).`);
       setLoading(false);
     }
   }
@@ -106,6 +152,7 @@ export default function LoginPage({ onLogin }: Props) {
                     autoComplete="email"
                     placeholder="you@topbins.com"
                     className="w-full rounded-2xl border border-white/10 bg-slate-900/50 px-4 py-3 text-slate-100 outline-none ring-0 placeholder:text-slate-500 focus:border-emerald-400/40 focus:ring-4 focus:ring-emerald-400/10"
+                    disabled={loading}
                   />
                 </div>
 
@@ -119,12 +166,14 @@ export default function LoginPage({ onLogin }: Props) {
                       autoComplete="current-password"
                       placeholder="••••••••"
                       className="w-full rounded-2xl border border-white/10 bg-slate-900/50 px-4 py-3 pr-12 text-slate-100 outline-none placeholder:text-slate-500 focus:border-emerald-400/40 focus:ring-4 focus:ring-emerald-400/10"
+                      disabled={loading}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPw((s) => !s)}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 rounded-xl px-3 py-2 text-xs text-slate-300 hover:bg-white/10"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 rounded-xl px-3 py-2 text-xs text-slate-300 hover:bg-white/10 disabled:opacity-60"
                       aria-label={showPw ? "Hide password" : "Show password"}
+                      disabled={loading}
                     >
                       {showPw ? "Hide" : "Show"}
                     </button>
@@ -132,16 +181,21 @@ export default function LoginPage({ onLogin }: Props) {
 
                   <div className="mt-2 flex items-center justify-between">
                     <label className="flex items-center gap-2 text-sm text-slate-300">
-                      <input type="checkbox" className="h-4 w-4 rounded border-white/20 bg-white/10" />
+                      <input
+                        type="checkbox"
+                        className="h-4 w-4 rounded border-white/20 bg-white/10"
+                        disabled={loading}
+                      />
                       Remember me
                     </label>
-                    <button
-                      type="button"
+
+                    {/* Replace this with your real reset page when you make it */}
+                    <Link
+                      href="/forgot-password"
                       className="text-sm text-emerald-300 hover:text-emerald-200"
-                      onClick={() => alert("Hook this up to your reset flow.")}
                     >
                       Forgot password?
-                    </button>
+                    </Link>
                   </div>
                 </div>
 
@@ -170,15 +224,17 @@ export default function LoginPage({ onLogin }: Props) {
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     type="button"
-                    className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-200 hover:bg-white/10"
-                    onClick={() => alert("Hook up OAuth here (Google).")}
+                    className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-200 hover:bg-white/10 disabled:opacity-60"
+                    onClick={() => loginWithOAuth("google")}
+                    disabled={loading}
                   >
                     Google
                   </button>
                   <button
                     type="button"
-                    className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-200 hover:bg-white/10"
-                    onClick={() => alert("Hook up OAuth here (GitHub).")}
+                    className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-200 hover:bg-white/10 disabled:opacity-60"
+                    onClick={() => loginWithOAuth("github")}
+                    disabled={loading}
                   >
                     GitHub
                   </button>
@@ -186,10 +242,7 @@ export default function LoginPage({ onLogin }: Props) {
 
                 <p className="pt-2 text-center text-sm text-slate-300">
                   New here?{" "}
-                  <Link
-                    href="/signup"
-                    className="text-emerald-300 hover:text-emerald-200"
-                  >
+                  <Link href="/signup" className="text-emerald-300 hover:text-emerald-200">
                     Create an account
                   </Link>
                 </p>

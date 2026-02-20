@@ -1,13 +1,17 @@
-"use client";
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
+import { LogoutButton } from "@/app/components/LogoutButton";
 
-import React from "react";
-import Link from "next/link"; // Assuming using Next.js Link
-// You might need to adjust imports based on your project structure
+export default async function HomePage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-export default function HomePage() {
+  const loggedIn = !!user;
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-emerald-500/30">
-
       {/* Navbar */}
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-slate-950/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
@@ -15,16 +19,40 @@ export default function HomePage() {
             <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-emerald-400 to-cyan-400 shadow-lg shadow-emerald-500/20" />
             <span className="text-xl font-bold tracking-tight text-white">TopBins</span>
           </div>
+
+          {/* Right side nav changes based on auth */}
           <div className="flex items-center gap-4">
-            <Link href="/login" className="text-sm font-medium text-slate-300 transition hover:text-white">
-              Log in
-            </Link>
-            <Link
-              href="/signup"
-              className="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-slate-200"
-            >
-              Sign up
-            </Link>
+            {!loggedIn ? (
+              <>
+                <Link
+                  href="/login"
+                  className="text-sm font-medium text-slate-300 transition hover:text-white"
+                >
+                  Log in
+                </Link>
+                <Link
+                  href="/signup"
+                  className="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-slate-200"
+                >
+                  Sign up
+                </Link>
+              </>
+            ) : (
+              <>
+                <div className="hidden sm:block text-sm text-slate-300">
+                  Welcome, <span className="text-white">{user?.email}</span>
+                </div>
+
+                <Link
+                  href="/dashboard"
+                  className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
+                >
+                  Dashboard
+                </Link>
+
+                <LogoutButton />
+              </>
+            )}
           </div>
         </div>
       </nav>
@@ -47,39 +75,74 @@ export default function HomePage() {
           </div>
 
           <h1 className="mb-6 max-w-4xl text-5xl font-extrabold tracking-tight text-white sm:text-6xl md:text-7xl">
-            The Ultimate <br />
-            <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
-              Fantasy Soccer
-            </span>{" "}
-            Experience
+            {loggedIn ? (
+              <>
+                Locked in. <br />
+                <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+                  Time to cook.
+                </span>
+              </>
+            ) : (
+              <>
+                The Ultimate <br />
+                <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+                  Fantasy Soccer
+                </span>{" "}
+                Experience
+              </>
+            )}
           </h1>
 
           <p className="mb-10 max-w-2xl text-lg text-slate-400 sm:text-xl">
-            Draft your dream squad, compete with friends in real-time features, and dominate the league with advanced analytics.
+            {loggedIn
+              ? "Jump back into your league, check your lineup, and make moves with analytics that actually help."
+              : "Draft your dream squad, compete with friends in real-time features, and dominate the league with advanced analytics."}
           </p>
 
           <div className="flex flex-col gap-4 sm:flex-row">
-            <Link
-              href="/signup"
-              className="inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-emerald-400 to-cyan-400 px-8 py-4 text-base font-bold text-slate-950 shadow-lg shadow-emerald-500/20 transition hover:scale-105 hover:brightness-110"
-            >
-              Start Your Season
-            </Link>
-            <Link
-              href="/demo"
-              className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-8 py-4 text-base font-semibold text-white backdrop-blur-sm transition hover:bg-white/10"
-            >
-              View Demo
-            </Link>
+            {!loggedIn ? (
+              <>
+                <Link
+                  href="/signup"
+                  className="inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-emerald-400 to-cyan-400 px-8 py-4 text-base font-bold text-slate-950 shadow-lg shadow-emerald-500/20 transition hover:scale-105 hover:brightness-110"
+                >
+                  Start Your Season
+                </Link>
+                <Link
+                  href="/demo"
+                  className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-8 py-4 text-base font-semibold text-white backdrop-blur-sm transition hover:bg-white/10"
+                >
+                  View Demo
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/dashboard"
+                  className="inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-emerald-400 to-cyan-400 px-8 py-4 text-base font-bold text-slate-950 shadow-lg shadow-emerald-500/20 transition hover:scale-105 hover:brightness-110"
+                >
+                  Go to Dashboard
+                </Link>
+                <Link
+                  href="/leagues"
+                  className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-8 py-4 text-base font-semibold text-white backdrop-blur-sm transition hover:bg-white/10"
+                >
+                  My Leagues
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Abstract Visual / Pitch */}
           <div className="mt-20 w-full max-w-5xl perspective-1000">
             <div className="relative mx-auto aspect-[16/9] w-full rotate-x-12 rounded-2xl border border-white/10 bg-slate-900/50 shadow-2xl shadow-emerald-500/10 backdrop-blur-xl transition hover:rotate-x-0 duration-700 ease-out">
               <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-slate-700 font-mono text-sm">[ Interactive Pitch Visualization Placeholder ]</span>
+                <span className="text-slate-700 font-mono text-sm">
+                  {loggedIn
+                    ? "[ Your league overview / lineup widget placeholder ]"
+                    : "[ Interactive Pitch Visualization Placeholder ]"}
+                </span>
               </div>
-              {/* Decorative grid lines simulating pitch */}
               <div className="absolute inset-x-0 top-1/4 h-px bg-white/5" />
               <div className="absolute inset-x-0 bottom-1/4 h-px bg-white/5" />
               <div className="absolute inset-y-0 left-1/4 w-px bg-white/5" />
@@ -94,15 +157,25 @@ export default function HomePage() {
       <section className="bg-slate-950 py-24">
         <div className="mx-auto max-w-7xl px-6">
           <div className="mb-16 text-center">
-            <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">Everything you need to win</h2>
-            <p className="mt-4 text-slate-400">Powerful tools built for the modern fantasy manager.</p>
+            <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+              {loggedIn ? "Your next edge" : "Everything you need to win"}
+            </h2>
+            <p className="mt-4 text-slate-400">
+              {loggedIn
+                ? "Tools to help you make better decisions week to week."
+                : "Powerful tools built for the modern fantasy manager."}
+            </p>
           </div>
 
           <div className="grid gap-8 md:grid-cols-3">
             <FeatureCard
-              title="Live Draft Room"
-              desc="Experience the thrill of real-time drafting with our websocket-powered draft room. No lag, just pure strategy."
-              icon="⚡"
+              title={loggedIn ? "Lineup optimizer" : "Live Draft Room"}
+              desc={
+                loggedIn
+                  ? "Auto-suggest starters based on form, fixtures, and your rules."
+                  : "Experience the thrill of real-time drafting with our websocket-powered draft room. No lag, just pure strategy."
+              }
+              icon={loggedIn ? "🧠" : "⚡"}
             />
             <FeatureCard
               title="Smart Analytics"
@@ -110,9 +183,13 @@ export default function HomePage() {
               icon="📊"
             />
             <FeatureCard
-              title="Global Leagues"
-              desc="Join public leagues to compete against managers worldwide or create private leagues for your friends."
-              icon="🌍"
+              title={loggedIn ? "Transfers & alerts" : "Global Leagues"}
+              desc={
+                loggedIn
+                  ? "Get notified when it’s time to move — injuries, rotation risk, matchup swings."
+                  : "Join public leagues to compete against managers worldwide or create private leagues for your friends."
+              }
+              icon={loggedIn ? "🔔" : "🌍"}
             />
           </div>
         </div>
@@ -142,7 +219,9 @@ function FeatureCard({ title, desc, icon }: { title: string; desc: string; icon:
       <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-900 text-2xl shadow-inner shadow-white/10">
         {icon}
       </div>
-      <h3 className="mb-3 text-xl font-bold text-white group-hover:text-emerald-400 transition-colors">{title}</h3>
+      <h3 className="mb-3 text-xl font-bold text-white group-hover:text-emerald-400 transition-colors">
+        {title}
+      </h3>
       <p className="text-slate-400 leading-relaxed">{desc}</p>
     </div>
   );
