@@ -8,8 +8,16 @@ class Settings(BaseSettings):
     SUPABASE_URL: str
     SUPABASE_KEY: str
     
+    SUPABASE_JWT_SECRET: str 
+    
     SPORTSMONK_API_TOKEN: str
     
-    model_config = SettingsConfigDict(env_file=".env", env_ignore_empty=True)
+    ALGORITHM: str = "HS256"
+    
+    model_config = SettingsConfigDict(
+        env_file=".env", 
+        env_ignore_empty=True,
+        extra="ignore"
+    )
 
 settings = Settings()
