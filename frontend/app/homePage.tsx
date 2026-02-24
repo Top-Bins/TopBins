@@ -11,9 +11,15 @@ export default function HomePage() {
             {/* Navbar */}
             <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-slate-950/80 backdrop-blur-md">
                 <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-                    <div className="flex items-center gap-3">
-                        <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-emerald-400 to-cyan-400 shadow-lg shadow-emerald-500/20" />
-                        <span className="text-xl font-bold tracking-tight text-white">TopBins</span>
+                    <div className="flex items-center gap-8">
+                        <div className="flex items-center gap-3">
+                            <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-emerald-400 to-cyan-400 shadow-lg shadow-emerald-500/20" />
+                            <span className="text-xl font-bold tracking-tight text-white">TopBins</span>
+                        </div>
+                        <div className="hidden md:flex items-center gap-6">
+                            <Link href="/dashboard" className="text-sm font-medium text-slate-300 transition hover:text-white">Dashboard</Link>
+                            <Link href="/buildTeam" className="text-sm font-medium text-slate-300 transition hover:text-white">Draft</Link>
+                        </div>
                     </div>
                     <div className="flex items-center gap-4">
                         <Link href="/login" className="text-sm font-medium text-slate-300 transition hover:text-white">
