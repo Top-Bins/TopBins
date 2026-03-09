@@ -5,10 +5,7 @@ from app.services.league_service import LeagueService
 
 router = APIRouter()
 
-# TODO: Replace with actual auth dependency
-async def get_current_user_id():
-    # Placeholder: In a real app, this would come from a JWT/Supabase Auth
-    return "00000000-0000-0000-0000-000000000000"
+from app.api.deps import get_current_user_id
 
 @router.post("/", response_model=League)
 async def create_league(
