@@ -2,24 +2,27 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { leagueService } from '@/services/league';
 
 export default function JoinLeaguePage() {
     const [inviteCode, setInviteCode] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [error, setError] = useState<string | null>(null);
     const router = useRouter();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
+        setError(null);
 
-        // API integration will be done in Phase 2
-        console.log('Joining league with code:', inviteCode);
-
-        // Simulate API delay
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
-        setIsSubmitting(false);
-        // router.push('/leagues'); // Navigate to leagues dashboard (planned)
+        try {
+            await leagueService.joinLeague(inviteCode);
+            router.push('/leagues');
+        } catch (err: any) {
+            setError(err.message || 'Something went wrong');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -33,6 +36,11 @@ export default function JoinLeaguePage() {
                 </p>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
+                    {error && (
+                        <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+                            {error}
+                        </div>
+                    )}
                     <div>
                         <label htmlFor="inviteCode" className="block text-sm font-medium text-slate-300 mb-2">
                             Invite Code
