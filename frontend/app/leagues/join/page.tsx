@@ -23,18 +23,18 @@ export default function JoinLeaguePage() {
     };
 
     return (
-        <div className="min-h-screen bg-neutral-950 text-white flex flex-col items-center justify-center p-4">
-            <div className="w-full max-w-md bg-neutral-900 border border-neutral-800 rounded-2xl p-8 shadow-2xl">
-                <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+        <div className="min-h-screen bg-slate-950 text-slate-100 p-4 pt-24">
+            <div className="mx-auto w-full max-w-md bg-slate-900/50 border border-white/10 rounded-3xl p-8 shadow-2xl backdrop-blur-xl">
+                <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
                     Join a League
                 </h1>
-                <p className="text-neutral-400 mb-8">
+                <p className="text-slate-400 mb-8">
                     Enter the unique invite code provided by your league owner.
                 </p>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
-                        <label htmlFor="inviteCode" className="block text-sm font-medium text-neutral-300 mb-2">
+                        <label htmlFor="inviteCode" className="block text-sm font-medium text-slate-300 mb-2">
                             Invite Code
                         </label>
                         <input
@@ -44,24 +44,24 @@ export default function JoinLeaguePage() {
                             onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
                             placeholder="e.g. CHAMP-2024-XYZ"
                             required
-                            className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-4 py-3 text-white placeholder-neutral-600 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all uppercase tracking-wider font-mono"
+                            className="w-full bg-slate-950 border border-white/10 rounded-2xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all uppercase tracking-wider font-mono font-medium"
                         />
                     </div>
 
                     <button
                         type="submit"
                         disabled={isSubmitting || !inviteCode.trim()}
-                        className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-400 hover:to-pink-400 disabled:from-neutral-700 disabled:to-neutral-700 disabled:cursor-not-allowed text-white font-bold py-3 px-6 rounded-xl transition-all shadow-lg hover:shadow-purple-500/20 active:scale-[0.98]"
+                        className="w-full bg-gradient-to-r from-emerald-400 to-cyan-400 hover:brightness-110 active:scale-[0.98] disabled:from-slate-700 disabled:to-slate-700 disabled:cursor-not-allowed text-slate-950 font-bold py-4 px-6 rounded-2xl transition-all shadow-lg shadow-emerald-500/20"
                     >
                         {isSubmitting ? 'Joining...' : 'Join League'}
                     </button>
                 </form>
 
-                <div className="mt-8 pt-6 border-t border-neutral-800 text-center">
+                <div className="mt-8 pt-6 border-t border-white/5 text-center">
                     <button
                         type="button"
                         onClick={() => router.push('/leagues/create')}
-                        className="text-neutral-400 hover:text-purple-400 text-sm transition-colors"
+                        className="text-slate-400 hover:text-emerald-400 text-sm font-medium transition-colors"
                     >
                         Want to start your own league instead?
                     </button>
