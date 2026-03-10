@@ -13,7 +13,7 @@ async def create_league(
     user_id: str = Depends(get_current_user_id)
 ):
     try:
-        return LeagueService.create_league(league_data, user_id)
+        return LeagueService.create_league(league_data, user_id, team_name=league_data.team_name)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -23,7 +23,7 @@ async def join_league(
     user_id: str = Depends(get_current_user_id)
 ):
     try:
-        return LeagueService.join_league(join_data.invite_code, user_id)
+        return LeagueService.join_league(join_data.invite_code, user_id, join_data.team_name)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:

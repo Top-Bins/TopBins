@@ -6,6 +6,7 @@ import { leagueService } from '@/services/league';
 
 export default function CreateLeaguePage() {
     const [leagueName, setLeagueName] = useState('');
+    const [teamName, setTeamName] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
@@ -16,7 +17,7 @@ export default function CreateLeaguePage() {
         setError(null);
 
         try {
-            await leagueService.createLeague(leagueName);
+            await leagueService.createLeague(leagueName, teamName);
             router.push('/leagues');
         } catch (err: any) {
             setError(err.message || 'Something went wrong');
@@ -50,7 +51,22 @@ export default function CreateLeaguePage() {
                             type="text"
                             value={leagueName}
                             onChange={(e) => setLeagueName(e.target.value)}
-                            placeholder="e.g. The Champions' Circle"
+                            placeholder="e.g. The Champions League"
+                            required
+                            className="w-full bg-slate-950 border border-white/10 rounded-2xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all font-medium"
+                        />
+                    </div>
+
+                    <div>
+                        <label htmlFor="teamName" className="block text-sm font-medium text-slate-300 mb-2">
+                            Your Team Name
+                        </label>
+                        <input
+                            id="teamName"
+                            type="text"
+                            value={teamName}
+                            onChange={(e) => setTeamName(e.target.value)}
+                            placeholder="e.g. London Lions"
                             required
                             className="w-full bg-slate-950 border border-white/10 rounded-2xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all font-medium"
                         />
@@ -58,7 +74,7 @@ export default function CreateLeaguePage() {
 
                     <button
                         type="submit"
-                        disabled={isSubmitting || !leagueName.trim()}
+                        disabled={isSubmitting || !leagueName.trim() || !teamName.trim()}
                         className="w-full bg-gradient-to-r from-emerald-400 to-cyan-400 hover:brightness-110 active:scale-[0.98] disabled:from-slate-700 disabled:to-slate-700 disabled:cursor-not-allowed text-slate-950 font-bold py-4 px-6 rounded-2xl transition-all shadow-lg shadow-emerald-500/20"
                     >
                         {isSubmitting ? 'Creating...' : 'Create League'}

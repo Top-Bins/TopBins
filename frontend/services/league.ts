@@ -13,12 +13,12 @@ async function getAuthHeaders() {
 }
 
 export const leagueService = {
-    async createLeague(name: string) {
+    async createLeague(name: string, teamName: string) {
         const headers = await getAuthHeaders();
         const response = await fetch(`${API_BASE_URL}/leagues/`, {
             method: 'POST',
             headers,
-            body: JSON.stringify({ name }),
+            body: JSON.stringify({ name, team_name: teamName }),
         });
 
         if (!response.ok) {
@@ -28,12 +28,12 @@ export const leagueService = {
         return response.json();
     },
 
-    async joinLeague(inviteCode: string) {
+    async joinLeague(inviteCode: string, teamName: string) {
         const headers = await getAuthHeaders();
         const response = await fetch(`${API_BASE_URL}/leagues/join`, {
             method: 'POST',
             headers,
-            body: JSON.stringify({ invite_code: inviteCode }),
+            body: JSON.stringify({ invite_code: inviteCode, team_name: teamName }),
         });
 
         if (!response.ok) {
