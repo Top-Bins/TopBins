@@ -195,20 +195,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-white/5 bg-slate-900 py-12">
-        <div className="mx-auto max-w-7xl px-6 flex flex-col items-center justify-between gap-6 md:flex-row">
-          <div className="flex items-center gap-2">
-            <div className="h-6 w-6 rounded-lg bg-emerald-500/20" />
-            <span className="text-sm font-semibold text-slate-400">TopBins &copy; 2026</span>
-          </div>
-          <div className="flex gap-6 text-sm text-slate-500">
-            <a href="#" className="hover:text-emerald-400">Terms</a>
-            <a href="#" className="hover:text-emerald-400">Privacy</a>
-            <a href="#" className="hover:text-emerald-400">Support</a>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
