@@ -1,12 +1,26 @@
+import { createClient } from '@/lib/supabase/client';
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+
+async function getAuthHeaders() {
+    const supabase = createClient();
+    const { data: { session } } = await supabase.auth.getSession();
+
+    return {
+        'Content-Type': 'application/json',
+        ...(session?.access_token ? { 'Authorization': `Bearer ${session.access_token}` } : {}),
+    };
+}
 
 export const leagueService = {
     async createLeague(name: string) {
+        const headers = await getAuthHeaders();
         const response = await fetch(`${API_BASE_URL}/leagues/`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers,
             body: JSON.stringify({ name }),
         });
+
         if (!response.ok) {
             const error = await response.json();
             throw new Error(error.detail || 'Failed to create league');
@@ -15,11 +29,13 @@ export const leagueService = {
     },
 
     async joinLeague(inviteCode: string) {
+        const headers = await getAuthHeaders();
         const response = await fetch(`${API_BASE_URL}/leagues/join`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers,
             body: JSON.stringify({ invite_code: inviteCode }),
         });
+
         if (!response.ok) {
             const error = await response.json();
             throw new Error(error.detail || 'Failed to join league');
@@ -28,7 +44,11 @@ export const leagueService = {
     },
 
     async getMyLeagues() {
-        const response = await fetch(`${API_BASE_URL}/leagues/me`);
+        const headers = await getAuthHeaders();
+        const response = await fetch(`${API_BASE_URL}/leagues/me`, {
+            headers
+        });
+
         if (!response.ok) {
             throw new Error('Failed to fetch leagues');
         }

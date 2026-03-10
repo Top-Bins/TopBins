@@ -1,18 +1,38 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Users, Trophy, ChevronRight } from 'lucide-react';
+import { Plus, Users, Trophy, ChevronRight, Copy, Check } from 'lucide-react';
 import Link from 'next/link';
-
-// Mock data for UI demonstration
-const MOCK_LEAGUES = [
-    { id: '1', name: 'Elite Champions', members: 12, rank: 3, invite_code: 'ELITE-99' },
-    { id: '2', name: 'Weekend Warriors', members: 8, rank: 1, invite_code: 'WAR-2024' },
-    { id: '3', name: 'Office Bragging Rights', members: 25, rank: 14, invite_code: 'WORK-XYZ' },
-];
+import { leagueService } from '@/services/league';
 
 export default function LeagueDashboardPage() {
+    const [leagues, setLeagues] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [copiedCode, setCopiedCode] = useState<string | null>(null);
     const router = useRouter();
+
+    useEffect(() => {
+        const fetchLeagues = async () => {
+            try {
+                const data = await leagueService.getMyLeagues();
+                setLeagues(data);
+            } catch (err: any) {
+                setError(err.message || 'Failed to load leagues');
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchLeagues();
+    }, []);
+
+    const copyToClipboard = (code: string) => {
+        navigator.clipboard.writeText(code);
+        setCopiedCode(code);
+        setTimeout(() => setCopiedCode(null), 2000);
+    };
 
     return (
         <div className="min-h-screen bg-slate-950 text-slate-100 p-6 pt-24 md:p-12 md:pt-24">
@@ -56,50 +76,71 @@ export default function LeagueDashboardPage() {
                     </div>
                 </div>
 
-                <div className="grid gap-4">
-                    {MOCK_LEAGUES.map((league) => (
-                        <div
-                            key={league.id}
-                            className="group relative bg-slate-900/40 border border-white/5 rounded-3xl p-6 hover:border-emerald-500/30 hover:bg-white/5 transition-all cursor-pointer overflow-hidden backdrop-blur-sm"
-                        >
-                            <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                {error && (
+                    <div className="mb-8 p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+                        {error}
+                    </div>
+                )}
 
-                            <div className="relative flex items-center justify-between">
-                                <div className="flex items-center gap-6">
-                                    <div className="w-14 h-14 rounded-2xl bg-slate-800 flex items-center justify-center text-2xl font-bold text-emerald-400 group-hover:scale-110 transition-transform shadow-inner shadow-white/5">
-                                        {league.name.charAt(0)}
-                                    </div>
-                                    <div>
-                                        <h3 className="text-xl font-bold mb-1 text-white group-hover:text-emerald-400 transition-colors">
-                                            {league.name}
-                                        </h3>
-                                        <div className="flex items-center gap-4 text-sm text-slate-500">
-                                            <span className="flex items-center gap-1">
-                                                <Users size={14} /> {league.members} Members
-                                            </span>
-                                            <span className="flex items-center gap-1 font-mono text-xs bg-slate-950 border border-white/5 px-2 py-0.5 rounded-lg text-slate-400">
-                                                {league.invite_code}
-                                            </span>
+                {isLoading ? (
+                    <div className="grid gap-4">
+                        {[1, 2, 3].map((i) => (
+                            <div key={i} className="h-28 bg-white/5 animate-pulse rounded-3xl" />
+                        ))}
+                    </div>
+                ) : (
+                    <div className="grid gap-4">
+                        {leagues.map((league) => (
+                            <div
+                                key={league.id}
+                                className="group relative bg-slate-900/40 border border-white/5 rounded-3xl p-6 hover:border-emerald-500/30 hover:bg-white/5 transition-all cursor-pointer overflow-hidden backdrop-blur-sm"
+                            >
+                                <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                                <div className="relative flex items-center justify-between">
+                                    <div className="flex items-center gap-6">
+                                        <div className="w-14 h-14 rounded-2xl bg-slate-800 flex items-center justify-center text-2xl font-bold text-emerald-400 group-hover:scale-110 transition-transform shadow-inner shadow-white/5">
+                                            {league.name.charAt(0)}
+                                        </div>
+                                        <div>
+                                            <h3 className="text-xl font-bold mb-1 text-white group-hover:text-emerald-400 transition-colors">
+                                                {league.name}
+                                            </h3>
+                                            <div className="flex items-center gap-4 text-sm text-slate-500">
+                                                <span className="flex items-center gap-1">
+                                                    <Users size={14} /> {league.members || 1} Members
+                                                </span>
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        copyToClipboard(league.invite_code);
+                                                    }}
+                                                    className="flex items-center gap-1.5 font-mono text-xs bg-slate-950 border border-white/5 px-2 py-0.5 rounded-lg text-slate-400 hover:text-emerald-400 hover:border-emerald-500/30 transition-all"
+                                                >
+                                                    {league.invite_code}
+                                                    {copiedCode === league.invite_code ? <Check size={12} /> : <Copy size={12} />}
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <div className="flex items-center gap-8">
-                                    <div className="text-right hidden sm:block">
-                                        <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold mb-1">Current Rank</p>
-                                        <div className="flex items-center gap-1.5 justify-end font-bold text-lg text-white">
-                                            <Trophy size={16} className="text-amber-400" />
-                                            #{league.rank}
+                                    <div className="flex items-center gap-8">
+                                        <div className="text-right hidden sm:block">
+                                            <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold mb-1">Current Rank</p>
+                                            <div className="flex items-center gap-1.5 justify-end font-bold text-lg text-white">
+                                                <Trophy size={16} className="text-amber-400" />
+                                                #{league.rank || 1}
+                                            </div>
                                         </div>
+                                        <ChevronRight className="text-slate-700 group-hover:text-emerald-400 group-hover:translate-x-1 transition-all" />
                                     </div>
-                                    <ChevronRight className="text-slate-700 group-hover:text-emerald-400 group-hover:translate-x-1 transition-all" />
                                 </div>
                             </div>
-                        </div>
-                    ))}
-                </div>
+                        ))}
+                    </div>
+                )}
 
-                {MOCK_LEAGUES.length === 0 && (
+                {!isLoading && leagues.length === 0 && (
                     <div className="text-center py-20 bg-slate-900/20 border-2 border-dashed border-white/5 rounded-3xl">
                         <p className="text-slate-500 mb-6">You haven't joined any leagues yet.</p>
                         <button
