@@ -6,9 +6,13 @@ async function getAuthHeaders() {
     const supabase = createClient();
     const { data: { session } } = await supabase.auth.getSession();
 
+    if (!session) {
+        throw new Error('Please log in to perform this action');
+    }
+
     return {
         'Content-Type': 'application/json',
-        ...(session?.access_token ? { 'Authorization': `Bearer ${session.access_token}` } : {}),
+        'Authorization': `Bearer ${session.access_token}`,
     };
 }
 

@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { leagueService } from '@/services/league';
+import { createClient } from '@/lib/supabase/client';
 
 export default function CreateLeaguePage() {
     const [leagueName, setLeagueName] = useState('');
@@ -10,6 +11,17 @@ export default function CreateLeaguePage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
+
+    useEffect(() => {
+        const checkAuth = async () => {
+            const supabase = createClient();
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                setError('You must be logged in to create a league.');
+            }
+        };
+        checkAuth();
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
