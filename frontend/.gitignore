@@ -40,32 +40,6 @@ yarn-error.log*
 *.tsbuildinfoe
 next-env.d.ts
 
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-env/
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-.pytest_cache/
-.coverage
-htmlcov/
-venv/
-.venv/
-
 # Node/Next.js
 node_modules/
 .next/
