@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     
     SUPABASE_JWT_SECRET: str 
     
-    SPORTSMONK_API_TOKEN: str
+    SPORTMONKS_API_TOKEN: str
     
     ALGORITHM: str = "HS256"
     
