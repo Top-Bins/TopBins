@@ -32,9 +32,11 @@ export async function updateSession(request: NextRequest) {
   const path = request.nextUrl.pathname;
   const isPublic =
     path.startsWith("/login") ||
-    path.startsWith("/signup") || // <-- ADD THIS LINE
-    path.startsWith("/forgot-password") || // <-- ADD THIS LINE TOO
-    path.startsWith("/auth");
+    path.startsWith("/signup") ||
+    path.startsWith("/forgot-password") || // Allow the request page
+    path.startsWith("/update-password") || // Allow the update page
+    path.startsWith("/auth"); // Allow the callback to process the token
+
   if (!user && !isPublic) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
