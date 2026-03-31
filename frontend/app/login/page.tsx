@@ -189,7 +189,6 @@ export default function LoginPage({ onLogin }: Props) {
                       Remember me
                     </label>
 
-                    {/* Replace this with your real reset page when you make it */}
                     <Link
                       href="/forgot-password"
                       className="text-sm text-emerald-300 hover:text-emerald-200"
