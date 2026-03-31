@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { LogoutButton } from "@/app/components/LogoutButton";
 
@@ -135,19 +136,13 @@ export default async function HomePage() {
 
           {/* Abstract Visual / Pitch */}
           <div className="mt-20 w-full max-w-5xl perspective-1000">
-            <div className="relative mx-auto aspect-[16/9] w-full rotate-x-12 rounded-2xl border border-white/10 bg-slate-900/50 shadow-2xl shadow-emerald-500/10 backdrop-blur-xl transition hover:rotate-x-0 duration-700 ease-out">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-slate-700 font-mono text-sm">
-                  {loggedIn
-                    ? "[ Your league overview / lineup widget placeholder ]"
-                    : "[ Interactive Pitch Visualization Placeholder ]"}
-                </span>
-              </div>
-              <div className="absolute inset-x-0 top-1/4 h-px bg-white/5" />
-              <div className="absolute inset-x-0 bottom-1/4 h-px bg-white/5" />
-              <div className="absolute inset-y-0 left-1/4 w-px bg-white/5" />
-              <div className="absolute inset-y-0 right-1/4 w-px bg-white/5" />
-              <div className="absolute left-1/2 top-1/2 h-32 w-32 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/5" />
+            <div className="relative mx-auto aspect-[16/9] w-full rotate-x-12 rounded-2xl border border-white/10 bg-slate-900/50 shadow-2xl shadow-emerald-500/20 backdrop-blur-xl transition hover:rotate-x-0 duration-700 ease-out overflow-hidden">
+              <Image 
+                  src="/roster-preview.png" 
+                  alt="Roster Preview" 
+                  fill 
+                  className="object-cover opacity-80 hover:opacity-100 transition-opacity duration-700" 
+              />
             </div>
           </div>
         </div>
