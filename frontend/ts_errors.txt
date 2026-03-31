@@ -1,0 +1,11 @@
+.next/dev/types/validator.ts(134,39): error TS2306: File 'C:/TopBins/frontend/app/auth/callback/route.ts' is not a module.
+.next/types/validator.ts(134,39): error TS2306: File 'C:/TopBins/frontend/app/auth/callback/route.ts' is not a module.
+app/components/LogoutButton.tsx(4,30): error TS2307: Cannot find module '@/lib/supabase/client' or its corresponding type declarations.
+app/leagues/create/page.tsx(6,30): error TS2307: Cannot find module '@/lib/supabase/client' or its corresponding type declarations.
+app/login/page.tsx(6,30): error TS2307: Cannot find module '@/lib/supabase/client' or its corresponding type declarations.
+app/page.tsx(2,30): error TS2307: Cannot find module '@/lib/supabase/server' or its corresponding type declarations.
+app/roster/page.tsx(117,9): error TS7053: Element implicitly has an 'any' type because expression of type 'Position' can't be used to index type '{ DEF: number; MID: number; FWD: number; }'.
+  Property 'GK' does not exist on type '{ DEF: number; MID: number; FWD: number; }'.
+app/signup/page.tsx(6,30): error TS2307: Cannot find module '@/lib/supabase/client' or its corresponding type declarations.
+proxy.ts(2,31): error TS2307: Cannot find module '@/lib/supabase/proxy' or its corresponding type declarations.
+services/league.ts(1,30): error TS2307: Cannot find module '@/lib/supabase/client' or its corresponding type declarations.
