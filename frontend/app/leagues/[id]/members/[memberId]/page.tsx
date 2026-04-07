@@ -42,6 +42,16 @@ export default function MemberTeamPage() {
     const router = useRouter();
     const [roster] = useState<Player[]>(DUMMY_ROSTER);
 
+    const starters = roster.filter(p => p.isStarter);
+    const bench = roster.filter(p => !p.isStarter);
+
+    const startersByPos = {
+       GK: starters.filter(p => p.position === "GK"),
+       DEF: starters.filter(p => p.position === "DEF"),
+       MID: starters.filter(p => p.position === "MID"),
+       FWD: starters.filter(p => p.position === "FWD"),
+    };
+
     return (
         <div className="min-h-screen bg-slate-950 text-slate-100 font-sans lg:flex lg:flex-col pb-20 pt-20 border-t">
             {/* Top Navigation placeholder */}
@@ -67,11 +77,59 @@ export default function MemberTeamPage() {
                         <p className="text-slate-400 flex items-center gap-2 text-sm">You are viewing another manager's team.</p>
                     </div>
                 </div>
-                {/* TO BE CONTINUED IN NEXT COMMIT: PITCH AND BENCH */}
-                <div className="text-center py-20 text-slate-400 border-2 border-dashed border-white/10 rounded-3xl h-64 bg-slate-900/30 flex items-center justify-center font-mono">
-                    [Pitch Render Area Coming Soon]
+                {/* Main Pitch Area */}
+                <div className="relative bg-[#0a2315] rounded-3xl border border-white/10 overflow-hidden shadow-2xl shadow-emerald-900/10 mb-8 py-10">
+                   <div className="absolute inset-0 pointer-events-none">
+                      <div className="absolute inset-x-6 top-6 bottom-6 border border-white/10 rounded" />
+                      <div className="absolute inset-x-6 top-1/2 h-0.5 bg-white/10" />
+                      <div className="absolute left-1/2 top-1/2 h-32 w-32 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/10" />
+                   </div>
+
+                   <div className="relative z-10 w-full h-full flex flex-col justify-between gap-12 sm:gap-16">
+                      <div className="flex justify-center">
+                         {startersByPos.GK.map(p => <PlayerNode key={p.id} player={p} />)}
+                      </div>
+                      <div className="flex justify-evenly px-4 sm:px-12">
+                         {startersByPos.DEF.map(p => <PlayerNode key={p.id} player={p} />)}
+                      </div>
+                      <div className="flex justify-evenly px-4 sm:px-16">
+                         {startersByPos.MID.map(p => <PlayerNode key={p.id} player={p} />)}
+                      </div>
+                      <div className="flex justify-evenly px-4 sm:px-24">
+                         {startersByPos.FWD.map(p => <PlayerNode key={p.id} player={p} />)}
+                      </div>
+                   </div>
+                </div>
+
+                {/* Bench Area */}
+                <div className="bg-slate-900/60 rounded-3xl border border-white/5 p-6 backdrop-blur-md">
+                   <h2 className="text-xl font-bold text-white mb-6">Bench</h2>
+                   <div className="flex justify-between sm:justify-center sm:gap-12 px-2">
+                      {bench.map(p => <PlayerNode key={p.id} player={p} />)}
+                   </div>
                 </div>
             </div>
         </div>
     );
+}
+
+// Sub-component for individual players
+function PlayerNode({ player }: { player: Player }) {
+   return (
+      <div className="relative flex flex-col items-center gap-1 group transition-transform duration-200 z-10 hover:z-20">
+         <div className="relative h-12 w-12 sm:h-14 sm:w-14 rounded-full border-2 bg-emerald-950 flex items-center justify-center border-emerald-500 shadow-lg shadow-black/40">
+            <span className="z-10 text-[10px] sm:text-xs font-bold text-white tracking-widest">{player.position}</span>
+            <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-emerald-500/20 to-transparent pointer-events-none" />
+         </div>
+         <div className="flex flex-col items-center select-none">
+            <div className="bg-slate-900/90 px-1.5 sm:px-2 py-0.5 rounded text-[9px] sm:text-[11px] font-bold border border-white/10 text-white backdrop-blur-sm truncate max-w-[70px] sm:max-w-[85px]">
+               {player.name}
+            </div>
+            <div className="mt-0.5 flex gap-1 items-center bg-slate-950/80 px-1 rounded">
+               <span className="text-[8px] sm:text-[9px] font-bold text-slate-400">{player.club}</span>
+               <span className="text-[8px] sm:text-[9px] font-bold text-emerald-400">{player.points}pts</span>
+            </div>
+         </div>
+      </div>
+   );
 }
