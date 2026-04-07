@@ -3,28 +3,43 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { Trophy, ChevronLeft, ChevronRight, Users } from 'lucide-react';
-
-const DUMMY_LEAGUE = {
-    id: '1',
-    name: 'Top Bins Elite',
-    members: [
-        { id: 'u1', name: 'Jack DeChiro', teamName: 'Saka Potatoes', points: 450, rank: 1 },
-        { id: 'u2', name: 'John Doe', teamName: 'Goal Diggers', points: 420, rank: 2 },
-        { id: 'u3', name: 'Jane Smith', teamName: 'Nottingham Forest Gump', points: 390, rank: 3 },
-        { id: 'u4', name: 'Alex Johnson', teamName: 'Expected Toulouse', points: 350, rank: 4 },
-    ]
-};
+import { Trophy, ChevronLeft, ChevronRight, Users, AlertCircle } from 'lucide-react';
+import { leagueService } from '@/services/league';
 
 export default function LeagueViewPage() {
     const params = useParams();
     const router = useRouter();
-    const [league, setLeague] = useState<typeof DUMMY_LEAGUE | null>(null);
+    const [league, setLeague] = useState<any>(null);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        // Simulating an API call
-        setLeague(DUMMY_LEAGUE);
+        const fetchLeague = async () => {
+            try {
+                const data = await leagueService.getLeagueDetails(params.id as string);
+                setLeague(data);
+            } catch (err: any) {
+                setError(err.message || "Failed to load league.");
+            }
+        };
+        if (params.id) {
+            fetchLeague();
+        }
     }, [params.id]);
+
+    if (error) {
+        return (
+            <div className="min-h-screen bg-slate-950 text-white p-12 flex flex-col items-center justify-center gap-4">
+                <AlertCircle className="w-12 h-12 text-rose-500" />
+                <p className="text-xl font-bold">{error}</p>
+                <button 
+                    onClick={() => router.push('/leagues')}
+                    className="mt-4 px-6 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition"
+                >
+                    Back to Leagues
+                </button>
+            </div>
+        );
+    }
 
     if (!league) {
         return (
@@ -109,10 +124,7 @@ export default function LeagueViewPage() {
                                     
                                     <div className="flex-1 ml-4">
                                         <h3 className="font-bold text-white text-lg group-hover:text-emerald-400 transition-colors flex items-center gap-2">
-                                            {member.teamName}
-                                            {isCurrentUser && (
-                                                <span className="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded uppercase tracking-wider border border-emerald-500/20">You</span>
-                                            )}
+                                            {member.team_name}
                                         </h3>
                                         <p className="text-sm text-slate-400">{member.name}</p>
                                     </div>

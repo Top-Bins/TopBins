@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Body
 from typing import List
-from app.schemas.league import LeagueCreate, League, LeagueJoin, LeagueMember
+from app.schemas.league import LeagueCreate, League, LeagueJoin, LeagueMember, LeagueDetails
 from app.services.league_service import LeagueService
 
 router = APIRouter()
@@ -34,3 +34,15 @@ async def get_my_leagues(
     user_id: str = Depends(get_current_user_id)
 ):
     return LeagueService.get_user_leagues(user_id)
+
+@router.get("/{league_id}", response_model=LeagueDetails)
+async def get_league(
+    league_id: str,
+    user_id: str = Depends(get_current_user_id)
+):
+    try:
+        return LeagueService.get_league_details(league_id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
