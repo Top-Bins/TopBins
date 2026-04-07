@@ -71,8 +71,13 @@ class LeagueService:
             "team_name": team_name
         }
         
-        result = supabase.table("teams").insert(payload).execute()
-        return LeagueMember(**result.data[0])
+        try:
+            result = supabase.table("teams").insert(payload).execute()
+            return LeagueMember(**result.data[0])
+        except Exception as e:
+            if "23505" in str(e) or "teams_user_id_league_id_key" in str(e):
+                raise Exception("Already in league")
+            raise e
 
     @staticmethod
     def get_user_leagues(user_id: str) -> List[League]:

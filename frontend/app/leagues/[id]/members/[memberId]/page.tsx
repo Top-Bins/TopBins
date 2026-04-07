@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { ChevronLeft, LogIn, ArrowRightLeft } from "lucide-react";
 import { leagueService } from "@/services/league";
+import { createClient } from "@/lib/supabase/client";
 
 type Position = "GK" | "DEF" | "MID" | "FWD";
 
@@ -60,6 +61,7 @@ export default function MemberTeamPage() {
     const params = useParams();
     const router = useRouter();
     const [memberName, setMemberName] = useState("Opponent");
+    const [isMyTeam, setIsMyTeam] = useState(false);
     
     const [isTradeMode, setIsTradeMode] = useState(false);
     const [mySelected, setMySelected] = useState<Player[]>([]);
@@ -68,9 +70,17 @@ export default function MemberTeamPage() {
     useEffect(() => {
         const fetchInfo = async () => {
             try {
+                const supabase = createClient();
+                const { data: { session } } = await supabase.auth.getSession();
+            
                 const league = await leagueService.getLeagueDetails(params.id as string);
                 const member = league.members.find((m: any) => m.id === params.memberId);
-                if (member) setMemberName(member.team_name);
+                if (member) {
+                    setMemberName(member.team_name);
+                    if (session?.user?.id === member.user_id) {
+                        setIsMyTeam(true);
+                    }
+                }
             } catch (e) {
                 console.error(e);
             }
@@ -126,20 +136,26 @@ export default function MemberTeamPage() {
                 
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end mb-8 border-b border-white/10 pb-6 gap-4">
                     <div>
-                        <h1 className="text-3xl font-extrabold text-white mb-2">{memberName}'s Roster</h1>
-                        <p className="text-slate-400 flex items-center gap-2 text-sm">You are viewing another manager's team.</p>
+                        <h1 className="text-3xl font-extrabold text-white mb-2">
+                            {isMyTeam ? "Your Roster" : `${memberName}'s Roster`}
+                        </h1>
+                        <p className="text-slate-400 flex items-center gap-2 text-sm">
+                            {isMyTeam ? "You are viewing your own team." : "You are viewing another manager's team."}
+                        </p>
                     </div>
-                    <button 
-                        onClick={() => {
-                            setIsTradeMode(!isTradeMode);
-                            setMySelected([]);
-                            setTheirSelected([]);
-                        }}
-                        className={`flex items-center gap-2 px-6 py-3 font-bold rounded-2xl transition hover:scale-105 ${isTradeMode ? 'bg-rose-500/20 text-rose-400 hover:bg-rose-500/30' : 'bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20'}`}
-                    >
-                        <ArrowRightLeft size={18} />
-                        {isTradeMode ? 'Cancel Trade' : 'Propose Trade'}
-                    </button>
+                    {!isMyTeam && (
+                        <button 
+                            onClick={() => {
+                                setIsTradeMode(!isTradeMode);
+                                setMySelected([]);
+                                setTheirSelected([]);
+                            }}
+                            className={`flex items-center gap-2 px-6 py-3 font-bold rounded-2xl transition hover:scale-105 ${isTradeMode ? 'bg-rose-500/20 text-rose-400 hover:bg-rose-500/30' : 'bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20'}`}
+                        >
+                            <ArrowRightLeft size={18} />
+                            {isTradeMode ? 'Cancel Trade' : 'Propose Trade'}
+                        </button>
+                    )}
                 </div>
 
                 {/* Trade Interaction Area */}
