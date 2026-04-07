@@ -93,6 +93,7 @@ export default function LeagueDashboardPage() {
                         {leagues.map((league) => (
                             <div
                                 key={league.id}
+                                onClick={() => router.push(`/leagues/${league.id}`)}
                                 className="group relative bg-slate-900/40 border border-white/5 rounded-3xl p-6 hover:border-emerald-500/30 hover:bg-white/5 transition-all cursor-pointer overflow-hidden backdrop-blur-sm"
                             >
                                 <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />

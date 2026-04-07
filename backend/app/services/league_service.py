@@ -81,3 +81,28 @@ class LeagueService:
         
         leagues = [League(**item["leagues"]) for item in result.data if "leagues" in item]
         return leagues
+
+    @staticmethod
+    def get_league_details(league_id: str) -> dict:
+        # Fetch league details
+        league_res = supabase.table("leagues").select("*").eq("id", league_id).execute()
+        if not league_res.data:
+            raise ValueError(f"League {league_id} not found")
+        league_data = league_res.data[0]
+
+        # Fetch teams/members and joined profiles for username
+        teams_res = supabase.table("teams").select("*, profiles(username)").eq("league_id", league_id).execute()
+        
+        members = []
+        for team in teams_res.data:
+            members.append({
+                "id": team["id"],
+                "user_id": team["user_id"],
+                "name": team["profiles"]["username"] if team.get("profiles") else "Unknown",
+                "team_name": team["team_name"],
+                "points": 0, # Placeholder
+                "rank": 0    # Placeholder
+            })
+        
+        league_data["members"] = members
+        return league_data

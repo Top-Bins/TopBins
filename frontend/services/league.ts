@@ -57,5 +57,18 @@ export const leagueService = {
             throw new Error('Failed to fetch leagues');
         }
         return response.json();
+    },
+
+    async getLeagueDetails(leagueId: string) {
+        const headers = await getAuthHeaders();
+        const response = await fetch(`${API_BASE_URL}/leagues/${leagueId}`, {
+            headers
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.detail || 'Failed to fetch league details');
+        }
+        return response.json();
     }
 };

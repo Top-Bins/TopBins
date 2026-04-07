@@ -36,3 +36,14 @@ class LeagueMember(BaseModel):
 
     class Config:
         from_attributes = True
+
+class MemberDetail(BaseModel):
+    id: UUID
+    user_id: str
+    name: str
+    team_name: str
+    points: int
+    rank: int
+
+class LeagueDetails(League):
+    members: list[MemberDetail]
