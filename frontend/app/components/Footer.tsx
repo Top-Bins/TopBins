@@ -43,6 +43,7 @@ export function Footer() {
                         <ul className="space-y-4">
                             <li><Link href="/leagues" className="text-sm text-slate-400 hover:text-emerald-400 transition-colors">Leagues</Link></li>
                             <li><Link href="/players" className="text-sm text-slate-400 hover:text-emerald-400 transition-colors">Player Stats</Link></li>
+                            <li><Link href="/teams" className="text-sm text-slate-400 hover:text-emerald-400 transition-colors">Club Stats</Link></li>
                             <li><Link href="/analytics" className="text-sm text-slate-400 hover:text-emerald-400 transition-colors">Analytics</Link></li>
                             <li><Link href="/pricing" className="text-sm text-slate-400 hover:text-emerald-400 transition-colors">Pricing</Link></li>
                         </ul>
