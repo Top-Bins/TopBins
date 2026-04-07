@@ -148,21 +148,6 @@ export default function MemberTeamPage() {
                         <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2"><ArrowRightLeft className="text-emerald-400"/> Trade Proposal</h2>
                         <div className="grid md:grid-cols-2 gap-8 lg:gap-16 mb-8">
                             <div className="bg-slate-950/50 rounded-2xl p-6 border border-white/5">
-                                <h3 className="text-emerald-400 font-bold mb-4 uppercase tracking-widest text-sm flex justify-between items-center">
-                                    Players You Receive 
-                                    <span className="bg-emerald-500/20 px-2 py-1 rounded text-xs">{theirSelected.length}</span>
-                                </h3>
-                                <div className="space-y-3 min-h-[60px]">
-                                    {theirSelected.length === 0 && <p className="text-slate-500 text-sm italic">Select players from {memberName}'s pitch below.</p>}
-                                    {theirSelected.map(p => (
-                                        <div key={p.id} className="flex justify-between items-center bg-slate-900 px-4 py-3 rounded-xl border border-white/5">
-                                            <span className="font-bold text-white">{p.name} <span className="text-xs text-slate-400 font-normal ml-2">{p.position}</span></span>
-                                            <button onClick={() => handlePlayerClick(p, false)} className="text-rose-400 text-sm hover:underline">Remove</button>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                            <div className="bg-slate-950/50 rounded-2xl p-6 border border-white/5">
                                 <h3 className="text-amber-400 font-bold mb-4 uppercase tracking-widest text-sm flex justify-between items-center">
                                     Players You Send
                                     <span className="bg-amber-500/20 text-amber-500 px-2 py-1 rounded text-xs">{mySelected.length}</span>
@@ -173,6 +158,21 @@ export default function MemberTeamPage() {
                                         <div key={p.id} className="flex justify-between items-center bg-slate-900 px-4 py-3 rounded-xl border border-white/5">
                                             <span className="font-bold text-white">{p.name} <span className="text-xs text-slate-400 font-normal ml-2">{p.position}</span></span>
                                             <button onClick={() => handlePlayerClick(p, true)} className="text-rose-400 text-sm hover:underline">Remove</button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                            <div className="bg-slate-950/50 rounded-2xl p-6 border border-white/5">
+                                <h3 className="text-emerald-400 font-bold mb-4 uppercase tracking-widest text-sm flex justify-between items-center">
+                                    Players You Receive 
+                                    <span className="bg-emerald-500/20 px-2 py-1 rounded text-xs">{theirSelected.length}</span>
+                                </h3>
+                                <div className="space-y-3 min-h-[60px]">
+                                    {theirSelected.length === 0 && <p className="text-slate-500 text-sm italic">Select players from {memberName}'s pitch below.</p>}
+                                    {theirSelected.map(p => (
+                                        <div key={p.id} className="flex justify-between items-center bg-slate-900 px-4 py-3 rounded-xl border border-white/5">
+                                            <span className="font-bold text-white">{p.name} <span className="text-xs text-slate-400 font-normal ml-2">{p.position}</span></span>
+                                            <button onClick={() => handlePlayerClick(p, false)} className="text-rose-400 text-sm hover:underline">Remove</button>
                                         </div>
                                     ))}
                                 </div>
