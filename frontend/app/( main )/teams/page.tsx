@@ -44,23 +44,7 @@ export default function TeamsPage() {
 
     return (
         <div className="min-h-screen bg-slate-950 text-slate-100 p-6 pt-24 md:p-12 md:pt-24 font-sans flex flex-col">
-            {/* Top Navigation */}
-            <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-slate-950/80 backdrop-blur-md">
-                <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-                    <Link href="/" className="flex items-center gap-3 transition hover:opacity-80">
-                        <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-emerald-400 to-cyan-400 shadow-lg shadow-emerald-500/20" />
-                        <span className="text-xl font-bold tracking-tight text-white">TopBins</span>
-                    </Link>
-                    <div className="flex gap-6 items-center">
-                        <Link href="/dashboard" className="text-sm font-medium text-slate-300 hover:text-emerald-400 transition">
-                            Dashboard
-                        </Link>
-                        <div className="h-8 w-8 rounded-full bg-white/10 border border-white/20 flex items-center justify-center">
-                            <span className="text-xs font-bold">MGR</span>
-                        </div>
-                    </div>
-                </div>
-            </nav>
+            
 
             <div className="max-w-7xl mx-auto w-full flex-1 flex flex-col lg:flex-row gap-8">
                 {/* Left Column: Team List */}

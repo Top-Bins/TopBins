@@ -36,20 +36,7 @@ export default function LeagueDashboardPage() {
 
     return (
         <div className="min-h-screen bg-slate-950 text-slate-100 p-6 pt-24 md:p-12 md:pt-24">
-            {/* Navbar Mock (matching app/page.tsx) */}
-            <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-slate-950/80 backdrop-blur-md">
-                <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-                    <Link href="/" className="flex items-center gap-3 group">
-                        <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-emerald-400 to-cyan-400 shadow-lg shadow-emerald-500/20 group-hover:scale-110 transition-transform" />
-                        <span className="text-xl font-bold tracking-tight text-white">TopBins</span>
-                    </Link>
-                    <div className="flex items-center gap-4">
-                        <div className="h-8 w-8 rounded-full bg-white/10 border border-white/10 flex items-center justify-center text-xs font-bold">
-                            JD
-                        </div>
-                    </div>
-                </div>
-            </nav>
+           
 
             <div className="max-w-5xl mx-auto">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
