@@ -13,58 +13,7 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-emerald-500/30">
-      {/* Navbar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-slate-950/80 backdrop-blur-md">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-emerald-400 to-cyan-400 shadow-lg shadow-emerald-500/20" />
-            <span className="text-xl font-bold tracking-tight text-white">TopBins</span>
-          </div>
-
-          {/* Right side nav changes based on auth */}
-          <div className="flex items-center gap-4">
-            {!loggedIn ? (
-              <>
-                <Link
-                  href="/login"
-                  className="text-sm font-medium text-slate-300 transition hover:text-white"
-                >
-                  Log in
-                </Link>
-                <Link
-                  href="/signup"
-                  className="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-slate-200"
-                >
-                  Sign up
-                </Link>
-              </>
-            ) : (
-              <>
-                <div className="hidden sm:block text-sm text-slate-300">
-                  Welcome, <span className="text-white">{user?.email}</span>
-                </div>
-
-                {/* NEW SETTINGS LINK */}
-                <Link
-                  href="/settings"
-                  className="text-sm font-medium text-slate-300 transition hover:text-white"
-                >
-                  Settings
-                </Link>
-
-                <Link
-                  href="/dashboard"
-                  className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
-                >
-                  Dashboard
-                </Link>
-
-                <LogoutButton />
-              </>
-            )}
-          </div>
-        </div>
-      </nav>
+    
 
       {/* Hero Section */}
       <section className="relative flex min-h-screen items-center justify-center overflow-hidden pt-20">

@@ -79,23 +79,7 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-emerald-500/30 pb-20">
       
-      {/* Top Navigation Mock */}
-      <nav className="sticky top-0 z-50 border-b border-white/5 bg-slate-950/80 backdrop-blur-md">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <Link href="/" className="flex items-center gap-3 transition hover:opacity-80">
-            <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-emerald-400 to-cyan-400 shadow-lg shadow-emerald-500/20" />
-            <span className="text-xl font-bold tracking-tight text-white">TopBins</span>
-          </Link>
-          <div className="flex gap-6 items-center">
-             <Link href="/buildTeam" className="text-sm font-medium text-slate-300 hover:text-emerald-400 transition">
-                Squad Engine
-             </Link>
-             <div className="h-8 w-8 rounded-full bg-white/10 border border-white/20 flex items-center justify-center">
-               <span className="text-xs font-bold">MGR</span>
-             </div>
-          </div>
-        </div>
-      </nav>
+    
 
       {/* Hero Header */}
       <div className="border-b border-white/5 bg-slate-900/40 relative overflow-hidden">
