@@ -44,6 +44,14 @@ export default async function HomePage() {
                   Welcome, <span className="text-white">{user?.email}</span>
                 </div>
 
+                {/* NEW SETTINGS LINK */}
+                <Link
+                  href="/settings"
+                  className="text-sm font-medium text-slate-300 transition hover:text-white"
+                >
+                  Settings
+                </Link>
+
                 <Link
                   href="/dashboard"
                   className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
