@@ -3,18 +3,24 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { Trophy, ChevronLeft, ChevronRight, Users, AlertCircle } from 'lucide-react';
+import { Trophy, ChevronLeft, ChevronRight, Users, AlertCircle, Play } from 'lucide-react';
 import { leagueService } from '@/services/league';
+import { createClient } from '@/lib/supabase/client';
 
 export default function LeagueViewPage() {
     const params = useParams();
     const router = useRouter();
     const [league, setLeague] = useState<any>(null);
     const [error, setError] = useState<string | null>(null);
+    const [currentUser, setCurrentUser] = useState<any>(null);
 
     useEffect(() => {
-        const fetchLeague = async () => {
+        const fetchLeagueAndUser = async () => {
             try {
+                const supabase = createClient();
+                const { data: { user } } = await supabase.auth.getUser();
+                setCurrentUser(user);
+
                 const data = await leagueService.getLeagueDetails(params.id as string);
                 setLeague(data);
             } catch (err: any) {
@@ -22,7 +28,7 @@ export default function LeagueViewPage() {
             }
         };
         if (params.id) {
-            fetchLeague();
+            fetchLeagueAndUser();
         }
     }, [params.id]);
 
@@ -82,18 +88,31 @@ export default function LeagueViewPage() {
                         <ChevronLeft size={16} /> Back to Leagues
                     </button>
                     
-                    <div className="flex items-center gap-5">
-                        <div className="w-16 h-16 rounded-3xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-3xl font-black text-emerald-400 shadow-xl shadow-emerald-900/20">
-                            {league.name.charAt(0)}
+                    <div className="flex items-center gap-5 justify-between">
+                        <div className="flex items-center gap-5">
+                            <div className="w-16 h-16 rounded-3xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-3xl font-black text-emerald-400 shadow-xl shadow-emerald-900/20">
+                                {league.name.charAt(0)}
+                            </div>
+                            <div>
+                                <h1 className="text-4xl font-extrabold text-white tracking-tight leading-tight">
+                                    {league.name}
+                                </h1>
+                                <p className="text-slate-400 flex items-center gap-2 mt-1">
+                                    <Users size={14} className="text-cyan-400"/> {league.members.length} Members
+                                </p>
+                            </div>
                         </div>
-                        <div>
-                            <h1 className="text-4xl font-extrabold text-white tracking-tight leading-tight">
-                                {league.name}
-                            </h1>
-                            <p className="text-slate-400 flex items-center gap-2 mt-1">
-                                <Users size={14} className="text-cyan-400"/> {league.members.length} Members
-                            </p>
-                        </div>
+
+                        {/* Start Draft Button for Creator */}
+                        {currentUser && league.creator_id === currentUser.id && (
+                            <button 
+                                onClick={() => alert("Draft starting soon...")}
+                                className="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-white px-6 py-3 rounded-xl font-bold transition shadow-lg shadow-emerald-500/20 hover:scale-105 active:scale-95"
+                            >
+                                <Play size={18} className="fill-current" />
+                                Start Draft
+                            </button>
+                        )}
                     </div>
                 </div>
 
@@ -110,7 +129,7 @@ export default function LeagueViewPage() {
                     
                     <div className="divide-y divide-white/5">
                         {league.members.sort((a, b) => b.points - a.points).map((member, index) => {
-                            const isCurrentUser = member.id === 'u1'; // Dummy logic for formatting
+                            const isCurrentUser = member.user_id === currentUser?.id;
                             
                             return (
                                 <div 
