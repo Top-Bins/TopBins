@@ -21,6 +21,7 @@ class League(LeagueBase):
     id: UUID
     invite_code: str
     creator_id: UUID
+    settings: Optional[dict] = None
     created_at: datetime
 
     class Config:

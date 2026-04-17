@@ -13,6 +13,7 @@ export default function LeagueViewPage() {
     const [league, setLeague] = useState<any>(null);
     const [error, setError] = useState<string | null>(null);
     const [currentUser, setCurrentUser] = useState<any>(null);
+    const [isStartingDraft, setIsStartingDraft] = useState(false);
 
     useEffect(() => {
         const fetchLeagueAndUser = async () => {
@@ -46,6 +47,17 @@ export default function LeagueViewPage() {
             </div>
         );
     }
+
+    const handleStartDraft = async () => {
+        try {
+            setIsStartingDraft(true);
+            await leagueService.startDraft(league.id);
+            router.push(`/leagues/${league.id}/draft`);
+        } catch (err: any) {
+            setError(err.message || 'Failed to start draft');
+            setIsStartingDraft(false);
+        }
+    };
 
     if (!league) {
         return (
@@ -103,15 +115,30 @@ export default function LeagueViewPage() {
                             </div>
                         </div>
 
-                        {/* Start Draft Button for Creator */}
-                        {currentUser && league.creator_id === currentUser.id && (
+                        {/* Draft Button Logic */}
+                        {league.settings?.draft_status === 'ACTIVE' ? (
                             <button 
-                                onClick={() => alert("Draft starting soon...")}
-                                className="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-white px-6 py-3 rounded-xl font-bold transition shadow-lg shadow-emerald-500/20 hover:scale-105 active:scale-95"
+                                onClick={() => router.push(`/leagues/${league.id}/draft`)}
+                                className="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-400 hover:to-purple-400 text-white px-6 py-3 rounded-xl font-bold transition shadow-lg shadow-indigo-500/20 hover:scale-105 active:scale-95"
                             >
                                 <Play size={18} className="fill-current" />
-                                Start Draft
+                                View Draft
                             </button>
+                        ) : (
+                            currentUser && league.creator_id === currentUser.id && (
+                                <button 
+                                    onClick={handleStartDraft}
+                                    disabled={isStartingDraft}
+                                    className={`flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-white px-6 py-3 rounded-xl font-bold transition shadow-lg shadow-emerald-500/20 ${isStartingDraft ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 active:scale-95'}`}
+                                >
+                                    {isStartingDraft ? (
+                                        <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                    ) : (
+                                        <Play size={18} className="fill-current" />
+                                    )}
+                                    {isStartingDraft ? 'Starting...' : 'Start Draft'}
+                                </button>
+                            )
                         )}
                     </div>
                 </div>

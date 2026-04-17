@@ -70,5 +70,47 @@ export const leagueService = {
             throw new Error(error.detail || 'Failed to fetch league details');
         }
         return response.json();
+    },
+
+    async startDraft(leagueId: string) {
+        const headers = await getAuthHeaders();
+        const response = await fetch(`${API_BASE_URL}/leagues/${leagueId}/start-draft`, {
+            method: 'POST',
+            headers
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.detail || 'Failed to start draft');
+        }
+        return response.json();
+    },
+
+    async getAvailablePlayers(leagueId: string) {
+        const headers = await getAuthHeaders();
+        const response = await fetch(`${API_BASE_URL}/leagues/${leagueId}/draft/players`, {
+            headers
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.detail || 'Failed to get available players');
+        }
+        return response.json();
+    },
+
+    async makeDraftPick(leagueId: string, playerId: number) {
+        const headers = await getAuthHeaders();
+        const response = await fetch(`${API_BASE_URL}/leagues/${leagueId}/draft/pick`, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({ player_id: playerId })
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.detail || 'Failed to make draft pick');
+        }
+        return response.json();
     }
 };
