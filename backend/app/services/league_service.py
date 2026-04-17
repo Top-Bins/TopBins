@@ -13,8 +13,7 @@ class LeagueService:
             if not res.data:
                 # Create a default profile
                 supabase.table("profiles").insert({
-                    "id": user_id,
-                    "username": f"User-{user_id[:8]}"
+                    "id": user_id
                 }).execute()
         except Exception:
             # Ignore errors here; if it's a hard FK error, the main operation will fail with a clear DB message
@@ -95,15 +94,15 @@ class LeagueService:
             raise ValueError(f"League {league_id} not found")
         league_data = league_res.data[0]
 
-        # Fetch teams/members and joined profiles for username
-        teams_res = supabase.table("teams").select("*, profiles(username)").eq("league_id", league_id).execute()
+        # Fetch teams/members
+        teams_res = supabase.table("teams").select("*").eq("league_id", league_id).execute()
         
         members = []
         for team in teams_res.data:
             members.append({
                 "id": team["id"],
                 "user_id": team["user_id"],
-                "name": team["profiles"]["username"] if team.get("profiles") else "Unknown",
+                "name": "Manager",
                 "team_name": team["team_name"],
                 "points": 0, # Placeholder
                 "rank": 0    # Placeholder
@@ -111,3 +110,8 @@ class LeagueService:
         
         league_data["members"] = members
         return league_data
+
+    @staticmethod
+    def start_draft(league_id: str, creator_id: str) -> dict:
+        # Stub for commit 2
+        return {"status": "success"}

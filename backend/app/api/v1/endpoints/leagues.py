@@ -46,3 +46,15 @@ async def get_league(
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+@router.post("/{league_id}/start-draft")
+async def start_draft(
+    league_id: str,
+    user_id: str = Depends(get_current_user_id)
+):
+    try:
+        return LeagueService.start_draft(league_id, user_id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
