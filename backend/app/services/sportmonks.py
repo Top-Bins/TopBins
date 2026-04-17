@@ -20,43 +20,7 @@ class SportmonksClient:
             response.raise_for_status()
             return response.json()
 
-    async def sync_match_stats(self, match_id: int):
-        # 1. Fetch the data from Sportmonks
-        params = {"include": "lineups.details"}
-        fixture_data = await self.get(f"fixtures/{match_id}", params=params)
-
-        supabase.table("matches").upsert({
-            "id": match_id,
-            "name": fixture_data['name'],
-            "starting_at": fixture_data['starting_at']
-        }).execute()
- 
-        data = fixture_data.get("data", {})
-        lineups = data.get("lineups", [])
-
-        processed_count = 0
-
-        # 2. Loop through every player in the match
-        for entry in lineups:
-            player_id = entry.get("player_id")
-            stats_list = entry.get("details", [])
-
-            if player_id and stats_list:
-                try:
-                    # 3. Push the data into your Supabase table
-                    supabase.table("player_match_stats").upsert({
-                        "player_id": player_id,
-                        "match_id": match_id,
-                        "stats": {"performance_data": stats_list},
-                        "points_earned": 0
-                    }).execute()
-                    processed_count += 1
-                except Exception as e:
-                    # This will skip players (like the Rangers players)
-                    # that aren't in your 'players' table yet.
-                    print(f"Skipping player {player_id}: {e}")
-
-        return {"status": "success", "players_saved": processed_count}
+    
 
     async def sync_players_by_season(self, season_id: int):
         print(f"--- 🚀 Starting Player Sync for Season {season_id} ---")
@@ -110,56 +74,61 @@ class SportmonksClient:
     async def sync_matches_by_date_range(self, start_date: str, end_date: str, league_id: int):
         print(f"--- 📅 Syncing Matches for League {league_id} ---")
         
-        # Convert string dates to datetime objects
         current_start = datetime.strptime(start_date, "%Y-%m-%d")
         final_end = datetime.strptime(end_date, "%Y-%m-%d")
-        
         total_matches = 0
         
-        # We loop in 90-day chunks to stay safely under the 100-day API limit
         while current_start < final_end:
-            # Calculate the end of this specific chunk
             current_end = min(current_start + timedelta(days=90), final_end)
+            page = 1
             
-            start_str = current_start.strftime("%Y-%m-%d")
-            end_str = current_end.strftime("%Y-%m-%d")
-            
-            print(f"   🔄 Syncing chunk: {start_str} to {end_str}...")
-            
-            params = {"filters": f"fixtureLeagues:{league_id}"}
-            
-            try:
-                endpoint = f"fixtures/between/{start_str}/{end_str}"
+            while True:
+                params = {
+                    "filters": f"fixtureLeagues:{league_id}",
+                    "page": page,
+                    "per_page": 50 
+                }
+                
+                endpoint = f"fixtures/between/{current_start.strftime('%Y-%m-%d')}/{current_end.strftime('%Y-%m-%d')}"
                 response = await self.get(endpoint, params=params)
                 fixtures = response.get("data", [])
+                meta = response.get("meta", {})
+                
+                # --- DEBUG: Run this once to see your plan's meta structure ---
+                if page == 1 and total_matches == 0:
+                    print(f"🔍 DEBUG Meta: {meta}")
                 
                 for fix in fixtures:
-                    # 1. Split "Team A vs Team B" into two variables
                     full_name = fix.get("name", "Unknown vs Unknown")
-                    if " vs " in full_name:
-                        home, away = full_name.split(" vs ", 1)
-                    else:
-                        home, away = full_name, "Unknown"
-
-                    # 2. Upsert using your EXACT Supabase column names
+                    home, away = full_name.split(" vs ", 1) if " vs " in full_name else (full_name, "Unknown")
+                    
                     supabase.table("matches").upsert({
                         "id": fix.get("id"),
                         "home_team_name": home.strip(),
                         "away_team_name": away.strip(),
-                        "kickoff_at": fix.get("starting_at"), # Maps starting_at -> kickoff_at
-                        # "matchweek_id": fix.get("round_id") # Optional: mapping round to matchweek
+                        "kickoff_at": fix.get("starting_at")
                     }).execute()
                 
                 total_matches += len(fixtures)
-                
-                # Move the window forward for the next loop (start at end + 1 day)
-                current_start = current_end + timedelta(days=1)
-                
-            except Exception as e:
-                print(f"🚨 Match Sync failed for chunk {start_str}: {e}")
-                break # Stop the loop if we hit a real error
+                print(f"   ✅ {current_start.strftime('%m/%d')} Chunk: Page {page} synced ({len(fixtures)} matches)")
 
-        print(f"--- ✨ Finished! Total matches synced: {total_matches} ---")
+                # ROBUST PAGINATION CHECK
+                pagination = meta.get("pagination", {})
+                # Check for 'has_more' in meta OR pagination object
+                has_more = meta.get("has_more") or pagination.get("has_more")
+                
+                # Fallback: If we got 25 matches (your likely cap) and has_more is missing/None, 
+                # assume there is more data.
+                if has_more is False or (not has_more and len(fixtures) < 25):
+                    break
+                    
+                page += 1
+                if page > 10: # Safety break to prevent infinite loops
+                    break
+
+            current_start = current_end + timedelta(days=1)
+                
+        print(f"--- ✨ Finished! Total matches in DB: {total_matches} ---")
         return {"status": "success", "matches_synced": total_matches}
  
 
