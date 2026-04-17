@@ -107,7 +107,7 @@ class SportmonksClient:
             traceback.print_exc()
             raise e
 
-async def sync_matches_by_date_range(self, start_date: str, end_date: str, league_id: int):
+    async def sync_matches_by_date_range(self, start_date: str, end_date: str, league_id: int):
         print(f"--- 📅 Syncing Matches for League {league_id} ---")
         
         # Convert string dates to datetime objects
