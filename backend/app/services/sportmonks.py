@@ -58,7 +58,8 @@ class SportmonksClient:
                 "player_id": player_id,
                 "match_id": match_id,
                 "stats": {"performance_data": processed_stats},
-                "points_earned": 0  # Default to 0, let your scoring logic handle this later
+                "points_earned": 0,  # Default to 0, let your scoring logic handle this later
+                "scored": False
             })
 
         # 3. Batch push to Supabase
@@ -288,7 +289,8 @@ class SportmonksClient:
                                 "player_id": p_id,
                                 "match_id": match_id,
                                 "stats": {"performance_data": processed_stats},
-                                "points_earned": 0
+                                "points_earned": 0,
+                                "scored": False
                             })
 
                     # 4. Save the stats and mark the match as synced
