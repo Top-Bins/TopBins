@@ -42,9 +42,20 @@ async def sync_matches_by_date_range(start_date: str, end_date: str, league_id: 
 async def reset_matches():
     """
     Reset matches and stats_synced flag.
-    """
+    """ 
     try:
         result = await sportmonks.run_match_maintenance()
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/sync-finished-match-stats")
+async def sync_finished_match_stats():
+    """
+    Sync stats for all finished matches that haven't been synced yet.
+    """
+    try:
+        result = await sportmonks.sync_finished_match_stats()
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

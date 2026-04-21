@@ -3,6 +3,7 @@ from typing import Any, Dict, Optional
 from app.core.config import settings
 from app.db.supabase import supabase
 from datetime import datetime, timedelta, timezone
+import asyncio
 
 class SportmonksClient:
     BASE_URL = "https://api.sportmonks.com/v3/football"
@@ -219,5 +220,97 @@ class SportmonksClient:
         except Exception as e:
             print(f"🚨 Maintenance failed: {e}")
             return {"status": "error", "message": str(e)}
+
+    async def sync_finished_match_stats(self):
+        # 1. Fetch matches that are finished but haven't had stats collected
+        response = (
+            supabase.table("matches")
+            .select("id")
+            .eq("finished", True)
+            .eq("stats_synced", False)
+            .execute()
+        )
+
+        pending_ids = [m['id'] for m in response.data]
+        
+        if not pending_ids:
+            return {"status": "success", "message": "All finished matches are already synced."}
+
+        print(f"Found {len(pending_ids)} matches to sync. Starting batch processing...")
+
+        chunk_size = 10
+        total_synced = 0
+
+        for i in range(0, len(pending_ids), chunk_size):
+            batch_ids = pending_ids[i : i + chunk_size]
+            ids_str = ",".join(map(str, batch_ids))
+
+            try:
+                # 3. Request multi-fixture data from Sportmonks
+                params = {"include": "lineups.details.type"}
+                response_data = await self.get(f"fixtures/multi/{ids_str}", params=params)
+                fixtures = response_data.get("data", [])
+
+                for fixture in fixtures:
+                    match_id = fixture.get("id")
+                    lineups = fixture.get("lineups", [])
+                    
+                    # Check for existing players to avoid foreign key violations
+                    api_player_ids = [entry.get("player_id") for entry in lineups if entry.get("player_id")]
+                    if not api_player_ids:
+                        continue
+
+                    existing_players_resp = supabase.table("players") \
+                        .select("id") \
+                        .in_("id", api_player_ids) \
+                        .execute()
+                    
+                    existing_ids = {p['id'] for p in existing_players_resp.data}
+
+                    stats_to_upsert = []
+                    for entry in lineups:
+                        p_id = entry.get("player_id")
+                        
+                        if p_id in existing_ids:
+                            details = entry.get("details", [])
+                            processed_stats = [
+                                {
+                                    "type_id": stat.get("type_id"),
+                                    "developer_name": stat.get("type", {}).get("developer_name"),
+                                    "value": stat.get("data", {}).get("value"),
+                                    "name": stat.get("type", {}).get("name"),
+                                    "group": stat.get("type", {}).get("stat_group")
+                                }
+                                for stat in details
+                            ]
+
+                            stats_to_upsert.append({
+                                "player_id": p_id,
+                                "match_id": match_id,
+                                "stats": {"performance_data": processed_stats},
+                                "points_earned": 0
+                            })
+
+                    # 4. Save the stats and mark the match as synced
+                    if stats_to_upsert:
+                        try:
+                            supabase.table("player_match_stats").upsert(stats_to_upsert).execute()
+                            supabase.table("matches").update({"stats_synced": True}).eq("id", match_id).execute()
+                            total_synced += 1 # Increment the counter!
+                        except Exception as e:
+                            print(f"Error saving stats for match {match_id}: {e}")
+
+                print(f"Processed chunk {i//chunk_size + 1}...")
+                
+                # Rate limit protection: sleep 1 second between batch API calls
+                await asyncio.sleep(1)
+
+            except Exception as e:
+                # This now correctly handles the outer API fetch try-block
+                print(f"Failed to fetch batch {batch_ids}: {e}")
+
+        return {"status": "complete", "matches_synced": total_synced}
+
+
 
 sportmonks = SportmonksClient()
