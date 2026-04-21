@@ -2,7 +2,7 @@ import httpx
 from typing import Any, Dict, Optional
 from app.core.config import settings
 from app.db.supabase import supabase
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 class SportmonksClient:
     BASE_URL = "https://api.sportmonks.com/v3/football"
@@ -190,5 +190,34 @@ class SportmonksClient:
         print(f"--- ✨ Finished! Total matches in DB: {total_matches} ---")
         return {"status": "success", "matches_synced": total_matches}
  
+    async def run_match_maintenance(self):
+        print("--- 🧹 Starting Match Maintenance ---")
+        now = datetime.now(timezone.utc).isoformat()
+        
+        try:
+            # 1. Mark past matches as finished
+            # We look for matches where kickoff is less than (lt) 'now'
+            res_finished = supabase.table("matches")\
+                .update({"finished": True})\
+                .lt("kickoff_at", now)\
+                .execute()
+            
+            print(f"   ✅ Marked {len(res_finished.data)} past matches as finished.")
+
+            res_stats = supabase.table("matches")\
+                .update({"stats_synced": False})\
+                .execute()
+                
+            print(f"   ✅ Reset stats_synced for {len(res_stats.data)} matches")
+            
+            return {
+                "status": "success", 
+                "matches_finished": len(res_finished.data),
+                "stats_reset": len(res_stats.data)
+            }
+
+        except Exception as e:
+            print(f"🚨 Maintenance failed: {e}")
+            return {"status": "error", "message": str(e)}
 
 sportmonks = SportmonksClient()
