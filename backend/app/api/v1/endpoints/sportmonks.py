@@ -5,11 +5,11 @@ from app.services.sportmonks import sportmonks
 router = APIRouter()
 
 # Notice the {match_id} in the path and the match_id: int in the function
-@router.post("/sync-match/{match_id}")
-async def sync_match(match_id: int):
+@router.post("/sync-match-stats/{match_id}")
+async def sync_match_stats(match_id: int):
     """
     Fetch match data from Sportmonks and upsert into Supabase.
-    """
+    """ 
     try:
         result = await sportmonks.sync_match_stats(match_id)
         return result
