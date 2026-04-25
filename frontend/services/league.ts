@@ -67,7 +67,53 @@ export const leagueService = {
 
         if (!response.ok) {
             const error = await response.json();
-            throw new Error(error.detail || 'Failed to fetch league details');
+            const errorMsg = typeof error.detail === 'string' ? error.detail : JSON.stringify(error.detail || error);
+            throw new Error(errorMsg);
+        }
+        return response.json();
+    },
+
+    async startDraft(leagueId: string) {
+        const headers = await getAuthHeaders();
+        const response = await fetch(`${API_BASE_URL}/leagues/${leagueId}/start-draft`, {
+            method: 'POST',
+            headers
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            const errorMsg = typeof error.detail === 'string' ? error.detail : JSON.stringify(error.detail || error);
+            throw new Error(errorMsg);
+        }
+        return response.json();
+    },
+
+    async getDraftState(leagueId: string) {
+        const headers = await getAuthHeaders();
+        const response = await fetch(`${API_BASE_URL}/leagues/${leagueId}/draft/state`, {
+            headers
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            const errorMsg = typeof error.detail === 'string' ? error.detail : JSON.stringify(error.detail || error);
+            throw new Error(errorMsg);
+        }
+        return response.json();
+    },
+
+    async makeDraftPick(leagueId: string, playerId: string) {
+        const headers = await getAuthHeaders();
+        const response = await fetch(`${API_BASE_URL}/leagues/${leagueId}/draft/pick`, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({ player_id: playerId }),
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            const errorMsg = typeof error.detail === 'string' ? error.detail : JSON.stringify(error.detail || error);
+            throw new Error(errorMsg);
         }
         return response.json();
     }
