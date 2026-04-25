@@ -113,5 +113,85 @@ class LeagueService:
 
     @staticmethod
     def start_draft(league_id: str, creator_id: str) -> dict:
-        # Stub for commit 2
+        league_res = supabase.table("leagues").select("creator_id").eq("id", league_id).execute()
+        if not league_res.data:
+            raise ValueError("League not found")
+        if str(league_res.data[0]["creator_id"]) != creator_id:
+            raise ValueError("Only the league creator can start the draft")
+            
+        result = supabase.table("leagues").update({"status": "drafting"}).eq("id", league_id).execute()
+        if not result.data:
+            raise Exception("Failed to update league status")
         return {"status": "success"}
+
+    @staticmethod
+    def get_draft_state(league_id: str) -> dict:
+        league_res = supabase.table("leagues").select("status").eq("id", league_id).execute()
+        if not league_res.data:
+            raise ValueError("League not found")
+        status = league_res.data[0].get("status", "pending")
+        
+        teams_res = supabase.table("teams").select("id").eq("league_id", league_id).order("created_at").execute()
+        teams = [team["id"] for team in teams_res.data]
+        
+        if not teams:
+            return {"status": status, "current_turn_team_id": None, "draft_order": [], "picks": [], "is_complete": False}
+            
+        picks_res = supabase.table("team_players").select("team_id, player_id").in_("team_id", teams).execute()
+        picks = picks_res.data if picks_res.data else []
+        
+        num_picks = len(picks)
+        total_teams = len(teams)
+        max_players_per_team = 15
+        
+        is_complete = num_picks >= total_teams * max_players_per_team
+        
+        current_turn_team_id = None
+        if not is_complete:
+            round_num = num_picks // total_teams
+            position_in_round = num_picks % total_teams
+            
+            if round_num % 2 != 0:
+                turn_index = total_teams - 1 - position_in_round
+            else:
+                turn_index = position_in_round
+                
+            current_turn_team_id = teams[turn_index]
+            
+        return {
+            "status": status,
+            "current_turn_team_id": current_turn_team_id,
+            "draft_order": teams,
+            "picks": picks,
+            "is_complete": is_complete
+        }
+
+    @staticmethod
+    def make_draft_pick(league_id: str, user_id: str, player_id: str) -> dict:
+        team_res = supabase.table("teams").select("id").eq("league_id", league_id).eq("user_id", user_id).execute()
+        if not team_res.data:
+            raise ValueError("You are not part of this league")
+        user_team_id = team_res.data[0]["id"]
+        
+        state = LeagueService.get_draft_state(league_id)
+        if state["is_complete"]:
+            raise ValueError("Draft is already complete")
+        if state["current_turn_team_id"] != user_team_id:
+            raise ValueError("It is not your turn to pick")
+            
+        if any(str(pick["player_id"]) == player_id for pick in state["picks"]):
+            raise ValueError("Player has already been drafted in this league")
+            
+        result = supabase.table("team_players").insert({
+            "team_id": user_team_id,
+            "player_id": player_id
+        }).execute()
+        
+        if not result.data:
+            raise Exception("Failed to save draft pick")
+            
+        new_state = LeagueService.get_draft_state(league_id)
+        if new_state["is_complete"]:
+            supabase.table("leagues").update({"status": "active"}).eq("id", league_id).execute()
+            
+        return {"status": "success", "pick": result.data[0]}
