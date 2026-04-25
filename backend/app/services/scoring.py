@@ -1,6 +1,8 @@
 # app/services/scoring.py
 
 from app.db.supabase import supabase
+from datetime import datetime, timedelta, timezone
+
 
 class ScoringService:
     # 1. Define the Point Map based on developer_name
@@ -149,5 +151,35 @@ class ScoringService:
             results.append(res)
             
         return {"status": "complete", "weeks_processed": len(results)}
+
+
+    async def run_daily_scoring_pipeline(self):
+        print(f"[{datetime.now()}] Starting Daily Scoring Pipeline...")
+
+        # Step 1: Sync raw stats from Sportmonks
+        # We use the function we built that checks finished=True, stats_synced=False
+        sync_result = await match_service.sync_finished_match_stats()
+        print(f"Sync Complete: {sync_result.get('matches_synced', 0)} matches synced.")
+
+        # Step 2: Calculate points for all new performances
+        # This handles the 1000-row batches we set up
+        score_result = await self.calculate_all_pending_scores()
+        print(f"Scoring Complete: {score_result.get('total_scored', 0)} players scored.")
+
+        # Step 3: Update Matchweek Standings
+        # We only want to update weeks that actually have games
+        # Usually, this is the 'live' week and the most recent 'finished' week
+        active_weeks_res = supabase.table("matchweeks") \
+            .select("id") \
+            .or_("status.eq.live,status.eq.finished") \
+            .execute()
+        
+        active_week_ids = [w['id'] for w in active_weeks_res.data]
+
+        for mw_id in active_week_ids:
+            standing_res = await self.update_matchweek_standings(mw_id)
+            print(f"Standings Updated for Week {mw_id}: {standing_res.get('players_tallied')} players.")
+
+        return {"status": "success", "message": "Full pipeline executed."}
 
 scoring_service = ScoringService()
