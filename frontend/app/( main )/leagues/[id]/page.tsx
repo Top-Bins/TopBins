@@ -32,6 +32,16 @@ export default function LeagueViewPage() {
         }
     }, [params.id]);
 
+    const handleStartDraft = async () => {
+        if (!league) return;
+        try {
+            await leagueService.startDraft(league.id);
+            router.push(`/leagues/${league.id}/draft`);
+        } catch (err: any) {
+            alert(err.message || "Failed to start draft");
+        }
+    };
+
     if (error) {
         return (
             <div className="min-h-screen bg-slate-950 text-white p-12 flex flex-col items-center justify-center gap-4">
@@ -103,16 +113,24 @@ export default function LeagueViewPage() {
                             </div>
                         </div>
 
-                        {/* Start Draft Button for Creator */}
-                        {currentUser && league.creator_id === currentUser.id && (
+                        {/* Draft Buttons */}
+                        {currentUser && league.status === 'drafting' ? (
                             <button 
-                                onClick={() => alert("Draft starting soon...")}
+                                onClick={() => router.push(`/leagues/${league.id}/draft`)}
+                                className="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-white px-6 py-3 rounded-xl font-bold transition shadow-lg shadow-emerald-500/20 hover:scale-105 active:scale-95"
+                            >
+                                <Play size={18} className="fill-current" />
+                                Join Draft
+                            </button>
+                        ) : currentUser && league.creator_id === currentUser.id && league.status !== 'active' ? (
+                            <button 
+                                onClick={handleStartDraft}
                                 className="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-white px-6 py-3 rounded-xl font-bold transition shadow-lg shadow-emerald-500/20 hover:scale-105 active:scale-95"
                             >
                                 <Play size={18} className="fill-current" />
                                 Start Draft
                             </button>
-                        )}
+                        ) : null}
                     </div>
                 </div>
 
@@ -128,7 +146,7 @@ export default function LeagueViewPage() {
                     </div>
                     
                     <div className="divide-y divide-white/5">
-                        {league.members.sort((a, b) => b.points - a.points).map((member, index) => {
+                        {league.members.sort((a: any, b: any) => b.points - a.points).map((member: any, index: number) => {
                             const isCurrentUser = member.user_id === currentUser?.id;
                             
                             return (
