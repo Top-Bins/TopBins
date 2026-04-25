@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Body
-from typing import List
-from app.schemas.league import LeagueCreate, League, LeagueJoin, LeagueMember, LeagueDetails
+from typing import List, Union
+from pydantic import BaseModel
+from app.schemas.league import LeagueCreate, League, LeagueJoin, LeagueMember, LeagueDetails, DraftState
 from app.services.league_service import LeagueService
 
 router = APIRouter()
@@ -54,6 +55,34 @@ async def start_draft(
 ):
     try:
         return LeagueService.start_draft(league_id, user_id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.get("/{league_id}/draft/state", response_model=DraftState)
+async def get_draft_state(
+    league_id: str,
+    user_id: str = Depends(get_current_user_id)
+):
+    try:
+        return LeagueService.get_draft_state(league_id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+class DraftPickRequest(BaseModel):
+    player_id: Union[str, int]
+
+@router.post("/{league_id}/draft/pick")
+async def make_draft_pick(
+    league_id: str,
+    pick_req: DraftPickRequest,
+    user_id: str = Depends(get_current_user_id)
+):
+    try:
+        return LeagueService.make_draft_pick(league_id, user_id, str(pick_req.player_id))
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
